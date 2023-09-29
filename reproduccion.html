@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Player</title>
+</head>
+<body>
+    <h1>Audio Player</h1>
+    <audio id="audioPlayer" controls></audio>
+
+    <script>
+        const audioPlayer = document.getElementById("audioPlayer");
+
+        // Set the audio source to the URL provided by Flask
+        audioPlayer.src = "/get_audio";
+
+        // You can control playback programmatically if needed
+        // audioPlayer.play();
+        // audioPlayer.pause();
+    </script>
+</body>
+</html>
