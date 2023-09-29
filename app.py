@@ -47,6 +47,6 @@ def get_audio():
     return send_file(audio_filepath, as_attachment=False)
 
 if __name__ == '__main__':
-    app.run(debug=True, port= 5112)
+    app.run(debug=False, port= 5112)
 
 
