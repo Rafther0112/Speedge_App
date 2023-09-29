@@ -2,13 +2,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Audio Recorder</title>
+    <title>SpeedGe</title>
 </head>
 <body>
-    <h1>Audio Recorder</h1>
-    <button id="startButton">Start Recording</button>
-    <button id="stopButton" disabled>Stop Recording</button>
-    <button id="uploadButton" disabled>Upload Audio</button>
+    <h1>SpeedGe</h1>
+    <button id="startButton">1. Start Recording</button>
+    <button id="stopButton" disabled>2. Stop Recording</button>
+    <button id="uploadButton" disabled>3. Upload Audio</button>
+    <button id="callFlaskAPI">4. Call Flask API</button>
+    <div id="loadingMessage" style="display: none;">Loading...</div>
+    <button id="playServerAudio" disabled>5. Play Server Audio</button>
     <audio id="audioPlayer" controls></audio>
 
     <script>
@@ -18,11 +21,16 @@
         const startButton = document.getElementById("startButton");
         const stopButton = document.getElementById("stopButton");
         const uploadButton = document.getElementById("uploadButton");
+        const callFlaskAPIButton = document.getElementById("callFlaskAPI");
+        const loadingMessage = document.getElementById("loadingMessage");
+        const playServerAudioButton = document.getElementById("playServerAudio");
         const audioPlayer = document.getElementById("audioPlayer");
 
         startButton.addEventListener("click", startRecording);
         stopButton.addEventListener("click", stopRecording);
         uploadButton.addEventListener("click", uploadAudio);
+        callFlaskAPIButton.addEventListener("click", callFlaskAPI);
+        playServerAudioButton.addEventListener("click", playServerAudio);
 
         async function startRecording() {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -64,9 +72,33 @@
 
             if (response.ok) {
                 alert("Audio uploaded successfully!");
+                playServerAudioButton.disabled = false;
             } else {
                 alert("Error uploading audio.");
             }
+        }
+
+        async function callFlaskAPI() {
+            loadingMessage.style.display = "block";
+            callFlaskAPIButton.disabled = true;
+
+            const response = await fetch("/SpeedGe"); // Replace with your actual Flask API route
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(`API Response: ${result.message}`);
+            } else {
+                alert("Error calling the API.");
+            }
+
+            loadingMessage.style.display = "none";
+            callFlaskAPIButton.disabled = false;
+            playServerAudioButton.disabled = false; // Enable the "Play Server Audio" button after the API call is complete
+        }
+
+        async function playServerAudio() {
+            const serverAudioUrl = "/get_audio"; // Change to your Flask route
+            audioPlayer.src = serverAudioUrl;
         }
     </script>
 </body>
