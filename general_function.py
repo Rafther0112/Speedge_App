@@ -8,7 +8,8 @@ def charge_model():
     ssl._create_default_https_context = ssl._create_unverified_context
     print("Ya quedó lo de la licencia")
     print("Se esta importando el modelo")
-    model = whisper.load_model("large")
+    model = whisper.load_model("tiny")
+    print("Ya quedó el modelo funcionando")
 
 def charge_model_translation():
     from easynmt import EasyNMT
