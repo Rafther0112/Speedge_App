@@ -1,8 +1,11 @@
 #%%
 import logging
 #%%
-from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
+from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardButton
+#%%
+from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
+from telegram.constants import ParseMode
+
 #%%
 logger = logging.getLogger(__name__)
 
@@ -96,7 +99,7 @@ def main() -> None:
     dispatcher.add_handler(CallbackQueryHandler(button_tap))
 
     # Echo any message that is not a command
-    dispatcher.add_handler(MessageHandler(~Filters.command, echo))
+    dispatcher.add_handler(MessageHandler(~filters.command, echo))
 
     # Start the Bot
     updater.start_polling()
@@ -107,3 +110,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
+# %%
