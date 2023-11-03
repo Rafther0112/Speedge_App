@@ -1,7 +1,6 @@
-#%%
 from gtts import gTTS
 from easynmt import EasyNMT
-#%%
+
 def charge_model():
     import whisper
     import ssl
@@ -9,8 +8,13 @@ def charge_model():
     ssl._create_default_https_context = ssl._create_unverified_context
     print("Ya quedó lo de la licencia")
     print("Se esta importando el modelo")
-    model = whisper.load_model("tiny")
-#%%
+    model = whisper.load_model("large")
+
+def charge_model_translation():
+    from easynmt import EasyNMT
+    traductor_model = EasyNMT('opus-mt')
+    return traductor_model
+
 def translate_function(file, identificador, entrada, salida):
     input_language = entrada
     output_language = salida
@@ -23,5 +27,3 @@ def translate_function(file, identificador, entrada, salida):
     myobj.save(f"final_{identificador}.mp3")\
     
     return texto
-
-# %%

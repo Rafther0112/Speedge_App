@@ -3,14 +3,15 @@ from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardBut
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 from flask import Flask, request, jsonify, send_file
 import os
-from general_function import charge_model, translate_function
+from general_function import charge_model, charge_model_translation, translate_function
 import telebot
 
 logger = logging.getLogger(__name__)
 charge_model()
+traductor_model = charge_model_translation()
 
 # Store bot screaming status
-output_language = "SP"
+output_language = "en"
 
 # Pre-assign menu text
 MENU = "<b>Output Language</b>\n\n Please select the language you want to translate to."
@@ -40,10 +41,8 @@ def echo(update: Update, context: CallbackContext) -> None:
     """
 
     # Print to console
-    print(f'{update.message.from_user.first_name} wrote {update.message.text}')
+    print(f'{update.message.from_user.first_name} sent a message')
 
-    print(update.message)
-    print(update.message.voice)
     if not update.message.voice == None:
         TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
         CHAT_ID = update.message.chat.id
@@ -55,13 +54,19 @@ def echo(update: Update, context: CallbackContext) -> None:
         with open(f'{CHAT_ID}.wav', 'wb') as new_file:
                 new_file.write(audio_file)
 
-        translate_function(f"{CHAT_ID}.wav",CHAT_ID )
-
+        translate_function(f"{CHAT_ID}.wav",CHAT_ID,  "all", output_language)
         bot.send_audio(chat_id=CHAT_ID, audio=open(f"final_{CHAT_ID}.mp3", 'rb'))
+        
     else:
-        update.message.copy(update.message.chat_id)
 
+        TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
+        CHAT_ID = update.message.chat.id
+        bot = telebot.TeleBot(TOKEN)
 
+        traduccion_target = traductor_model.translate(update.message.text, target_lang= output_language)
+        print(traduccion_target)
+        bot.send_message(chat_id=CHAT_ID, text = traduccion_target)
+        
 def menu(update: Update, context: CallbackContext) -> None:
     """
     This handler sends a menu with the inline buttons we pre-assigned above
@@ -89,12 +94,12 @@ def button_tap(update: Update, context: CallbackContext) -> None:
     print(f"Languages changed to {data}")
 
 
-    leng_code = {"English":"EN", 
-                 "Español":"SP", 
-                 "Français":"FR", 
-                 "Deutsch":"DE", 
-                 "中文":"CH", 
-                 "Português":"PT"}
+    leng_code = {"English":"en", 
+                 "Español":"sp", 
+                 "Français":"fr", 
+                 "Deutsch":"de", 
+                 "中文":"ch", 
+                 "Português":"pt"}
     output_language = leng_code[data]
 
 
@@ -131,7 +136,6 @@ def main() -> None:
 
     # Run the bot until you press Ctrl-C
     updater.idle()
-
 
 if __name__ == '__main__':
     main()
