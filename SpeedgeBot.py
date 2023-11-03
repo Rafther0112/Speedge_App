@@ -2,6 +2,29 @@ import logging
 from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardButton,ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 
+from flask import Flask, request, jsonify, send_file
+import os
+from Modulo_2_whisper_AI import charge_model, translate_function
+from Modulo_3_text_to_speech import generacion_audio
+from Modulo_4_sound_of_voice import reproduccion_audio
+
+#%%
+charge_model()
+
+def procesamiento_audio():
+    filename = "recorded_audio"
+    translate_function(filename)
+    generacion_audio(filename)
+
+    return jsonify({'message': 'File uploaded successfully'})
+
+def get_audio():
+    filename_traducido = "recorded_audio.mp3"
+    audio_filename = filename_traducido  # Adjust the filename and format accordingly
+    audio_filepath = os.path.join(os.path.dirname(__file__), audio_filename)
+
+    return send_file(audio_filepath, as_attachment=False)
+#%%
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +58,8 @@ def echo(update: Update, context: CallbackContext) -> None:
     print(f'{update.message.from_user.first_name} wrote {update.message.text}')
 
     update.message.copy(update.message.chat_id)
-
+    
+    return update.message.text
 
 def menu(update: Update, context: CallbackContext) -> None:
     """
@@ -49,12 +73,10 @@ def menu(update: Update, context: CallbackContext) -> None:
         reply_markup=INPUT_MENU_MARKUP
     )
 
-
 def button_tap(update: Update, context: CallbackContext) -> None:
     """
     This handler processes the inline buttons on the menu
     """
-
     data = update.callback_query.data
     text = ''
     markup = None
