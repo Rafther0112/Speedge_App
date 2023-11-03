@@ -12,7 +12,7 @@ def charge_model():
 
 def charge_model_translation():
     from easynmt import EasyNMT
-    traductor_model = EasyNMT('opus-mt')
+    traductor_model = EasyNMT('opus-mt', cache_folder = "__pycache__")
     return traductor_model
 
 def translate_function(file, identificador, entrada, salida):
@@ -21,9 +21,11 @@ def translate_function(file, identificador, entrada, salida):
     traductor_model = EasyNMT('opus-mt')
     result = model.transcribe(file, task = "translate")
     texto = result["text"]
+    source_language = result["language"]
 
-    traduccion_target = traductor_model.translate(texto, target_lang= output_language)
+    traduccion_target = traductor_model.translate(texto, source_lang= source_language, target_lang= output_language)
     myobj = gTTS(text=traduccion_target, lang=output_language, slow=False) #Se hace la conversion de Text to Speech
-    myobj.save(f"final_{identificador}.mp3")\
-    
+    myobj.save(f"final_{identificador}.mp3")
+
     return texto
+
