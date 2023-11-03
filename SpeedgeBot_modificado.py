@@ -1,12 +1,13 @@
 import logging
-
-from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardButton,ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
-
-# from general_function import charge_model, translate_function
-# import telebot
+from flask import Flask, request, jsonify, send_file
+import os
+from general_function import charge_model, translate_function
+import telebot
 
 logger = logging.getLogger(__name__)
+charge_model()
 
 # Store bot screaming status
 output_language = "SP"
@@ -23,7 +24,6 @@ GERMAN_BUTTON = "Deutsch"
 CHINESE_BUTTON = "中文"
 PORTUGUESE_BUTTON = "Português"
 
-
 # Build keyboards
 MENU_MARKUP = InlineKeyboardMarkup([
     [InlineKeyboardButton(ENGLISH_BUTTON, callback_data=ENGLISH_BUTTON)],
@@ -34,8 +34,6 @@ MENU_MARKUP = InlineKeyboardMarkup([
     # [InlineKeyboardButton(PORTUGUESE_BUTTON, callback_data=PORTUGUESE_BUTTON)]
 ])
 
-
-
 def echo(update: Update, context: CallbackContext) -> None:
     """
     This function would be added to the dispatcher as a handler for messages coming from the Bot API
@@ -43,21 +41,25 @@ def echo(update: Update, context: CallbackContext) -> None:
 
     # Print to console
     print(f'{update.message.from_user.first_name} wrote {update.message.text}')
-    print(f"Translated to {output_language}")
 
-    # TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
-    # CHAT_ID = update.message.chat.id
+    print(update.message)
+    print(update.message.voice)
+    if not update.message.voice == None:
+        TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
+        CHAT_ID = update.message.chat.id
 
-    # bot = telebot.TeleBot(TOKEN)
-    # file_info = bot.get_file(update.message.voice.file_id)
-    # audio_file = bot.download_file(file_info.file_path)
+        bot = telebot.TeleBot(TOKEN)
+        file_info = bot.get_file(update.message.voice.file_id)
+        audio_file = bot.download_file(file_info.file_path)
 
-    # with open(f'{CHAT_ID}.wav', 'wb') as new_file:
-    #         new_file.write(audio_file)
+        with open(f'{CHAT_ID}.wav', 'wb') as new_file:
+                new_file.write(audio_file)
 
-    # translate_function(f"{CHAT_ID}.wav",CHAT_ID )
+        translate_function(f"{CHAT_ID}.wav",CHAT_ID )
 
-    update.message.copy(update.message.chat_id)
+        bot.send_audio(chat_id=CHAT_ID, audio=open(f"final_{CHAT_ID}.mp3", 'rb'))
+    else:
+        update.message.copy(update.message.chat_id)
 
 
 def menu(update: Update, context: CallbackContext) -> None:
@@ -72,8 +74,6 @@ def menu(update: Update, context: CallbackContext) -> None:
         reply_markup=MENU_MARKUP
     )
     
-
-
 def button_tap(update: Update, context: CallbackContext) -> None:
     """
     This handler processes the inline buttons on the menu
@@ -108,8 +108,6 @@ def button_tap(update: Update, context: CallbackContext) -> None:
     )
     
     return output_language
-
-
 
 def main() -> None:
     updater = Updater("6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8")
