@@ -8,7 +8,7 @@ def charge_model():
     ssl._create_default_https_context = ssl._create_unverified_context
     print("Ya quedó lo de la licencia")
     print("Se esta importando el modelo")
-    model = whisper.load_model("tiny")
+    model = whisper.load_model("large")
     print("Ya quedó el modelo funcionando")
 
 def charge_model_translation():
@@ -29,4 +29,3 @@ def translate_function(file, identificador, entrada, salida):
     myobj.save(f"final_{identificador}.mp3")
 
     return texto
-
