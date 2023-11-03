@@ -3,14 +3,12 @@ from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardBut
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 from flask import Flask, request, jsonify, send_file
 import os
-from general_function immport charge_model, translate_function
-
-
-#charge_model()
+from general_function import charge_model, translate_function
+import telebot
 
 
 logger = logging.getLogger(__name__)
-
+charge_model()
 # Store bot screaming status
 input_language = "English"
 output_language = "Spanish"
@@ -39,12 +37,18 @@ def echo(update: Update, context: CallbackContext) -> None:
 
     # Print to console
     print(f'{update.message.from_user.first_name} wrote {update.message.text}')
-    print("Vamos a llamar a la funcion para hacer la traduccion")
-    print(update.message)
 
-    translate_function(update.message)
+    TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
+    CHAT_ID = update.message.chat.id
 
-    update.message.copy(update.message.chat_id)
+    bot = telebot.TeleBot(TOKEN)
+    file_info = bot.get_file(update.message.voice.file_id)
+    audio_file = bot.download_file(file_info.file_path)
+
+    with open('documento.wav', 'wb') as new_file:
+            new_file.write(audio_file)
+
+    translate_function("documento.wav")
 
     return update.message.text
 
