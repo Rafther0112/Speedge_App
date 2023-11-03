@@ -38,17 +38,24 @@ def echo(update: Update, context: CallbackContext) -> None:
     # Print to console
     print(f'{update.message.from_user.first_name} wrote {update.message.text}')
 
-    TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
-    CHAT_ID = update.message.chat.id
+    print(update.message)
+    print(update.message.voice)
+    if not update.message.voice == None:
+        TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
+        CHAT_ID = update.message.chat.id
 
-    bot = telebot.TeleBot(TOKEN)
-    file_info = bot.get_file(update.message.voice.file_id)
-    audio_file = bot.download_file(file_info.file_path)
+        bot = telebot.TeleBot(TOKEN)
+        file_info = bot.get_file(update.message.voice.file_id)
+        audio_file = bot.download_file(file_info.file_path)
 
-    with open(f'{CHAT_ID}.wav', 'wb') as new_file:
-            new_file.write(audio_file)
+        with open(f'{CHAT_ID}.wav', 'wb') as new_file:
+                new_file.write(audio_file)
 
-    translate_function(f"{CHAT_ID}.wav",CHAT_ID )
+        translate_function(f"{CHAT_ID}.wav",CHAT_ID )
+
+        bot.send_audio(chat_id=CHAT_ID, audio=open(f"final_{CHAT_ID}.mp3", 'rb'))
+    else:
+        update.message.copy(update.message.chat_id)
 
 def menu(update: Update, context: CallbackContext) -> None:
     """
