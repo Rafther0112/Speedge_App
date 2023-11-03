@@ -3,31 +3,36 @@ from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardBut
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 from flask import Flask, request, jsonify, send_file
 import os
-from general_function import charge_model, translate_function
+from general_function import charge_model, charge_model_translation, translate_function
 import telebot
 
 logger = logging.getLogger(__name__)
 charge_model()
+traductor_model = charge_model_translation()
 
 # Store bot screaming status
-input_language = "English"
-output_language = "Spanish"
+output_language = "en"
 
 # Pre-assign menu text
-INPUT_MENU = "<b>Input Language</b>\n\n Please select the language you want to translate from."
-OUTPUT_MENU = "<b>Output Language</b>\n\n Please select the language you wish to translate to."
-DONE_MENU = "<b>Done!</b>\n Your translation languages have been set."
+MENU = "<b>Output Language</b>\n\n Please select the language you want to translate to."
+DONE_MENU = "<b>Done!</b>\n Your translation language have been set."
 
 # Pre-assign button text
 ENGLISH_BUTTON = "English"
-SPANISH_BUTTON = "Spanish"
+SPANISH_BUTTON = "Español"
+FRENCH_BUTTON = "Français"
+GERMAN_BUTTON = "Deutsch"
+CHINESE_BUTTON = "中文"
+PORTUGUESE_BUTTON = "Português"
 
 # Build keyboards
-INPUT_MENU_MARKUP = InlineKeyboardMarkup([[
-    InlineKeyboardButton(ENGLISH_BUTTON, callback_data=ENGLISH_BUTTON)
-]])
-OUTPUT_MENU_MARKUP = InlineKeyboardMarkup([
+MENU_MARKUP = InlineKeyboardMarkup([
+    [InlineKeyboardButton(ENGLISH_BUTTON, callback_data=ENGLISH_BUTTON)],
     [InlineKeyboardButton(SPANISH_BUTTON, callback_data=SPANISH_BUTTON)],
+    [InlineKeyboardButton(FRENCH_BUTTON, callback_data=FRENCH_BUTTON)],
+    [InlineKeyboardButton(GERMAN_BUTTON, callback_data=GERMAN_BUTTON)],
+    # [InlineKeyboardButton(CHINESE_BUTTON, callback_data=CHINESE_BUTTON)]
+    # [InlineKeyboardButton(PORTUGUESE_BUTTON, callback_data=PORTUGUESE_BUTTON)]
 ])
 
 def echo(update: Update, context: CallbackContext) -> None:
@@ -36,10 +41,8 @@ def echo(update: Update, context: CallbackContext) -> None:
     """
 
     # Print to console
-    print(f'{update.message.from_user.first_name} wrote {update.message.text}')
+    print(f'{update.message.from_user.first_name} sent a message')
 
-    print(update.message)
-    print(update.message.voice)
     if not update.message.voice == None:
         TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
         CHAT_ID = update.message.chat.id
@@ -51,12 +54,18 @@ def echo(update: Update, context: CallbackContext) -> None:
         with open(f'{CHAT_ID}.wav', 'wb') as new_file:
                 new_file.write(audio_file)
 
-        translate_function(f"{CHAT_ID}.wav",CHAT_ID )
-
+        translate_function(f"{CHAT_ID}.wav",CHAT_ID,  "all", output_language)
         bot.send_audio(chat_id=CHAT_ID, audio=open(f"final_{CHAT_ID}.mp3", 'rb'))
+        
     else:
-        update.message.copy(update.message.chat_id)
+        print(update.message.from.language_code)
+        TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
+        CHAT_ID = update.message.chat.id
+        bot = telebot.TeleBot(TOKEN)
 
+        traduccion_target = traductor_model.translate(update.message.text, target_lang= output_language)
+        bot.send_message(chat_id=CHAT_ID, text = traduccion_target)
+        
 def menu(update: Update, context: CallbackContext) -> None:
     """
     This handler sends a menu with the inline buttons we pre-assigned above
@@ -64,28 +73,35 @@ def menu(update: Update, context: CallbackContext) -> None:
 
     context.bot.send_message(
         update.message.from_user.id,
-        INPUT_MENU,
+        MENU,
         parse_mode=ParseMode.HTML,
-        reply_markup=INPUT_MENU_MARKUP
+        reply_markup=MENU_MARKUP
     )
-
+    
 def button_tap(update: Update, context: CallbackContext) -> None:
     """
     This handler processes the inline buttons on the menu
     """
+
     data = update.callback_query.data
-    text = ''
-    markup = None
+    # text = ''
+    # markup = None
 
-    if data==ENGLISH_BUTTON:
-        input_language = data
-        text = OUTPUT_MENU
-        markup = OUTPUT_MENU_MARKUP
+    global output_language
 
-    elif data==SPANISH_BUTTON:
-        output_language = data
-        text = DONE_MENU
-        markup = None
+    text = DONE_MENU
+    print(f"Languages changed to {data}")
+
+
+    leng_code = {"English":"en", 
+                 "Español":"sp", 
+                 "Français":"fr", 
+                 "Deutsch":"de", 
+                 "中文":"ch", 
+                 "Português":"pt"}
+    output_language = leng_code[data]
+    
+
 
     # Close the query to end the client-side loading animation
     update.callback_query.answer()
@@ -94,8 +110,9 @@ def button_tap(update: Update, context: CallbackContext) -> None:
     update.callback_query.message.edit_text(
         text,
         ParseMode.HTML,
-        reply_markup=markup
     )
+    
+    return output_language
 
 def main() -> None:
     updater = Updater("6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8")
@@ -109,6 +126,7 @@ def main() -> None:
 
     # Register handler for inline buttons
     dispatcher.add_handler(CallbackQueryHandler(button_tap))
+
 
     # Echo any message that is not a command
     dispatcher.add_handler(MessageHandler(~Filters.command, echo))
