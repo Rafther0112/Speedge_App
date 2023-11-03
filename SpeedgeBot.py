@@ -6,9 +6,9 @@ import os
 from general_function import charge_model, translate_function
 import telebot
 
-
 logger = logging.getLogger(__name__)
 charge_model()
+
 # Store bot screaming status
 input_language = "English"
 output_language = "Spanish"
@@ -45,12 +45,10 @@ def echo(update: Update, context: CallbackContext) -> None:
     file_info = bot.get_file(update.message.voice.file_id)
     audio_file = bot.download_file(file_info.file_path)
 
-    with open('documento.wav', 'wb') as new_file:
+    with open(f'{CHAT_ID}.wav', 'wb') as new_file:
             new_file.write(audio_file)
 
-    translate_function("documento.wav")
-
-    return update.message.text
+    translate_function(f"{CHAT_ID}.wav",CHAT_ID )
 
 def menu(update: Update, context: CallbackContext) -> None:
     """

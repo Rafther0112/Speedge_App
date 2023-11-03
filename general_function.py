@@ -13,11 +13,11 @@ def charge_model():
     print("Se esta importando el modelo")
     model = whisper.load_model("tiny")
 
-def translate_function(file):
+def translate_function(file, identificador):
     result = model.transcribe(file, task = "translate")
     texto = result["text"]
     language = 'en' #Indicar cual es el idioma sobre el que se va a hacer el Text to Speech
     myobj = gTTS(text=texto, lang=language, slow=False) #Se hace la conversion de Text to Speech
-    myobj.save("traduccion_final.mp3")
+    myobj.save(f"final_{identificador}.mp3")
 
     return myobj
