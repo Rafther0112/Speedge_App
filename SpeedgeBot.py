@@ -1,12 +1,8 @@
-#%%
 import logging
-#%%
-from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardButton
-#%%
-from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
-from telegram.constants import ParseMode
+from telegram import Update, ForceReply, InlineKeyboardMarkup, InlineKeyboardButton,ParseMode
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 
-#%%
+
 logger = logging.getLogger(__name__)
 
 # Store bot screaming status
@@ -29,7 +25,6 @@ INPUT_MENU_MARKUP = InlineKeyboardMarkup([[
 OUTPUT_MENU_MARKUP = InlineKeyboardMarkup([
     [InlineKeyboardButton(SPANISH_BUTTON, callback_data=SPANISH_BUTTON)],
 ])
-
 
 def echo(update: Update, context: CallbackContext) -> None:
     """
@@ -84,7 +79,6 @@ def button_tap(update: Update, context: CallbackContext) -> None:
         reply_markup=markup
     )
 
-
 def main() -> None:
     updater = Updater("6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8")
 
@@ -99,7 +93,7 @@ def main() -> None:
     dispatcher.add_handler(CallbackQueryHandler(button_tap))
 
     # Echo any message that is not a command
-    dispatcher.add_handler(MessageHandler(~filters.command, echo))
+    dispatcher.add_handler(MessageHandler(~Filters.command, echo))
 
     # Start the Bot
     updater.start_polling()
@@ -107,8 +101,5 @@ def main() -> None:
     # Run the bot until you press Ctrl-C
     updater.idle()
 
-
 if __name__ == '__main__':
     main()
-
-# %%
