@@ -58,13 +58,12 @@ def echo(update: Update, context: CallbackContext) -> None:
         bot.send_audio(chat_id=CHAT_ID, audio=open(f"final_{CHAT_ID}.mp3", 'rb'))
         
     else:
-
+        print(update.message.from.language_code)
         TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
         CHAT_ID = update.message.chat.id
         bot = telebot.TeleBot(TOKEN)
 
         traduccion_target = traductor_model.translate(update.message.text, target_lang= output_language)
-        print(traduccion_target)
         bot.send_message(chat_id=CHAT_ID, text = traduccion_target)
         
 def menu(update: Update, context: CallbackContext) -> None:
@@ -101,6 +100,7 @@ def button_tap(update: Update, context: CallbackContext) -> None:
                  "中文":"ch", 
                  "Português":"pt"}
     output_language = leng_code[data]
+    
 
 
     # Close the query to end the client-side loading animation
