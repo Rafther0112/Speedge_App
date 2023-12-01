@@ -24,7 +24,7 @@ def translate_function(file, identificador, entrada, salida):
     texto = result["text"]
     source_language = result["language"]
 
-    traduccion_target = traductor_model.translate(texto, target_lang = output_language, source_lang = source_language,)
+    traduccion_target = traductor_model.translate(texto, target_lang = output_language, source_lang = source_language)
     myobj = gTTS(text=traduccion_target, lang=output_language, slow=False) #Se hace la conversion de Text to Speech
     myobj.save(f"final_{identificador}.mp3")
 
