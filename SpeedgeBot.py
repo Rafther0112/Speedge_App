@@ -11,7 +11,7 @@ charge_model()
 traductor_model = charge_model_translation()
 
 # Store bot screaming status
-output_language = "en"
+leng_dict = {}
 
 # Pre-assign menu text
 MENU = "<b>Output Language</b>\n\n Please select the language you want to translate to."
@@ -41,7 +41,13 @@ def echo(update: Update, context: CallbackContext) -> None:
     """
 
     # Print to console
-    print(f'{update.message.from_user.first_name} sent a message')
+    print(f'{update.message.chat.id} wrote {update.message.text}')
+    # print(leng_dict)
+
+    if update.message.chat.id in leng_dict:
+        leng = leng_dict[update.message.chat.id]
+    else: 
+        leng = "en"
 
     if not update.message.voice == None:
         TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
@@ -54,16 +60,15 @@ def echo(update: Update, context: CallbackContext) -> None:
         with open(f'{CHAT_ID}.wav', 'wb') as new_file:
                 new_file.write(audio_file)
 
-        translate_function(f"{CHAT_ID}.wav",CHAT_ID,  "all", output_language)
+        translate_function(f"{CHAT_ID}.wav",CHAT_ID,  "all", leng)
         bot.send_audio(chat_id=CHAT_ID, audio=open(f"final_{CHAT_ID}.mp3", 'rb'))
         
     else:
-        print(update.message.from.language_code)
         TOKEN = "6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8"
         CHAT_ID = update.message.chat.id
         bot = telebot.TeleBot(TOKEN)
 
-        traduccion_target = traductor_model.translate(update.message.text, target_lang= output_language)
+        traduccion_target = traductor_model.translate(update.message.text, target_lang= leng)
         bot.send_message(chat_id=CHAT_ID, text = traduccion_target)
         
 def menu(update: Update, context: CallbackContext) -> None:
@@ -84,24 +89,19 @@ def button_tap(update: Update, context: CallbackContext) -> None:
     """
 
     data = update.callback_query.data
-    # text = ''
-    # markup = None
-
-    global output_language
-
     text = DONE_MENU
-    print(f"Languages changed to {data}")
-
 
     leng_code = {"English":"en", 
-                 "Español":"sp", 
+                 "Español":"es", 
                  "Français":"fr", 
                  "Deutsch":"de", 
                  "中文":"ch", 
                  "Português":"pt"}
     output_language = leng_code[data]
-    
+    current_user = update.callback_query.message.chat.id
 
+    print(f"{current_user} language changed to {output_language}")
+    leng_dict[current_user] = output_language
 
     # Close the query to end the client-side loading animation
     update.callback_query.answer()
@@ -111,8 +111,6 @@ def button_tap(update: Update, context: CallbackContext) -> None:
         text,
         ParseMode.HTML,
     )
-    
-    return output_language
 
 def main() -> None:
     updater = Updater("6555655872:AAE8rGE7twoNlOuIAOTDBUXuYBSfdL7_9x8")
